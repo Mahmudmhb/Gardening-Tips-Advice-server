@@ -1,9 +1,14 @@
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { TPost, TUpvotes } from "./post.interfase";
 import { PostModel } from "./post.model";
 import { record } from "zod";
-
+import { User } from "../user/user.model";
+export type IProps = {
+  postId: Schema.Types.ObjectId;
+  userId: Schema.Types.ObjectId;
+};
 const newPost = async (payload: TPost) => {
+  console.log(payload);
   const result = (await PostModel.create(payload)).populate("user");
   return result;
 };
@@ -43,10 +48,19 @@ const upvotePost = async (payload: TPost) => {
 
   // Update the upvote count and add the user to the upvotedUsers list
   post.upvotesCount! += 1;
-  post.upvotedUsers!.push(userId);
 
+  post.upvotedUsers!.push(userId);
+  if (post.upvotesCount! > 1) {
+    const result = await User.updateOne(
+      { _id: userId },
+      {
+        verified: true,
+      }
+    );
+    console.log("upvote", result);
+  }
   // Save the updated post
-  const updatedPost = await post.save();
+  const updatedPost = (await post.save()).populate("user");
   return updatedPost;
 };
 export const PostServices = {

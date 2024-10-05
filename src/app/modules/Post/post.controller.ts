@@ -4,6 +4,7 @@ import sendResponce from "../../utilits/sendResponce";
 import { PostServices } from "./post.service";
 
 const newPostIntoDB = catchAsync(async (req, res) => {
+  console.log(req.body);
   const result = await PostServices.newPost(req.body);
   sendResponce(res, {
     statusCode: 201,
