@@ -1,7 +1,6 @@
 import { Schema, Types } from "mongoose";
-import { TPost, TUpvotes } from "./post.interfase";
+import { TPost } from "./post.interfase";
 import { PostModel } from "./post.model";
-import { record } from "zod";
 import { User } from "../user/user.model";
 export type IProps = {
   postId: Schema.Types.ObjectId;
@@ -13,7 +12,7 @@ const newPost = async (payload: TPost) => {
   return result;
 };
 const getAllPostFromDB = async () => {
-  const result = await PostModel.find();
+  const result = await PostModel.find().populate("user");
   return result;
 };
 const getSinglePostFromDB = async (id: string) => {
@@ -54,7 +53,7 @@ const upvotePost = async (payload: TPost) => {
     const result = await User.updateOne(
       { _id: userId },
       {
-        verified: true,
+        premium: true,
       }
     );
     console.log("upvote", result);

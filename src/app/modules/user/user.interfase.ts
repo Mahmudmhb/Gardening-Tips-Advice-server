@@ -9,6 +9,7 @@ export interface IUser {
   followers?: mongoose.Types.ObjectId[];
   following?: mongoose.Types.ObjectId[];
   verified?: boolean;
+  premium?: boolean;
   phone: string;
   address?: string;
   role?: Tuser_role;

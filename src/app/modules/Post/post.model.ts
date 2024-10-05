@@ -11,8 +11,10 @@ const PostSchema = new Schema<TPost>(
     text: { type: String, required: true },
     image: { type: String },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    upvotesCount: { type: Number, default: 0 }, // Initialize count to 0
-    upvotedUsers: [{ type: Schema.Types.ObjectId, ref: "User" }], // Array of users who have upvoted
+    upvotesCount: { type: Number, default: 0 },
+    upvotedUsers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    category: { type: String, required: true },
+    premium: { type: Boolean, default: false },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

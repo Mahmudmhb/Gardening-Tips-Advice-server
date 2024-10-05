@@ -13,6 +13,7 @@ const UserSchema = new Schema<IUser>(
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     verified: { type: Boolean, default: false },
+    premium: { type: Boolean, default: false },
     phone: { type: String, required: true },
     address: { type: String },
     role: {
