@@ -15,6 +15,12 @@ const getAllPostFromDB = async () => {
   const result = await PostModel.find().populate("user");
   return result;
 };
+const getMyPostFromDB = async (email: string) => {
+  const filterUser = await User.findOne({ email });
+  const findUser = filterUser?._id;
+  const result = await PostModel.find({ user: findUser }).populate("user");
+  return result;
+};
 const getSinglePostFromDB = async (id: string) => {
   const result = await PostModel.findById(id);
   return result;
@@ -68,4 +74,5 @@ export const PostServices = {
   getSinglePostFromDB,
   updateSinglePostIntoDB,
   upvotePost,
+  getMyPostFromDB,
 };

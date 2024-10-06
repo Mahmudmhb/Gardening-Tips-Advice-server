@@ -22,6 +22,15 @@ const getAllPost = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getMyPost = catchAsync(async (req, res) => {
+  const result = await PostServices.getMyPostFromDB(req.user.email);
+  sendResponce(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All user are retived successfully",
+    data: result,
+  });
+});
 const getSinglePost = catchAsync(async (req, res) => {
   const { postId } = req.params;
   const result = await PostServices.getSinglePostFromDB(postId);
@@ -61,4 +70,5 @@ export const PostControllers = {
   getAllPost,
   getSinglePost,
   UpvotePost,
+  getMyPost,
 };
