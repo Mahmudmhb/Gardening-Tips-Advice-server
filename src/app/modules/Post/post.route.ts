@@ -10,4 +10,5 @@ router.get("/mypost", auth(user_role.user), PostControllers.getMyPost);
 router.get("/:postId", PostControllers.getSinglePost);
 router.patch("/update/:postId", PostControllers.updateSinglePost);
 router.patch("/upvote", PostControllers.UpvotePost);
+router.patch("/commnets/:postID", PostControllers.commentPost);
 export const PostRoute = router;

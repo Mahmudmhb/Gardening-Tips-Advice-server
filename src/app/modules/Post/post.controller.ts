@@ -4,7 +4,6 @@ import sendResponce from "../../utilits/sendResponce";
 import { PostServices } from "./post.service";
 
 const newPostIntoDB = catchAsync(async (req, res) => {
-  console.log(req.body);
   const result = await PostServices.newPost(req.body);
   sendResponce(res, {
     statusCode: 201,
@@ -54,12 +53,22 @@ const updateSinglePost = catchAsync(async (req, res) => {
   }
 });
 const UpvotePost = catchAsync(async (req, res) => {
-  console.log("hiting the button", req.body);
   const result = await PostServices.upvotePost(req.body);
   sendResponce(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: " user role updated successfully",
+    message: " youre Upvote Post successfully",
+    data: result,
+  });
+});
+const commentPost = catchAsync(async (req, res) => {
+  const { postID } = req.params;
+  console.log("hiting the button", req.body);
+  const result = await PostServices.commentInToDB(postID, req.body);
+  sendResponce(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: " Thanks for your comment",
     data: result,
   });
 });
@@ -71,4 +80,5 @@ export const PostControllers = {
   getSinglePost,
   UpvotePost,
   getMyPost,
+  commentPost,
 };

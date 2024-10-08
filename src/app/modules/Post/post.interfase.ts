@@ -3,7 +3,10 @@ import { Types } from "mongoose";
 export type TUpvotes = {
   user: Types.ObjectId;
 };
-
+export type TCommnets = {
+  user: Types.ObjectId;
+  comment: string;
+};
 export type TPost = {
   text: string;
   image?: string;
@@ -11,5 +14,6 @@ export type TPost = {
   upvotesCount?: number;
   upvotedUsers?: Types.ObjectId[];
   category: string;
-  premium: boolean;
+  premium?: boolean;
+  comments?: TCommnets[];
 };
