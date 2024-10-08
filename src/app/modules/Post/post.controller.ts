@@ -63,12 +63,30 @@ const UpvotePost = catchAsync(async (req, res) => {
 });
 const commentPost = catchAsync(async (req, res) => {
   const { postID } = req.params;
-  console.log("hiting the button", req.body);
-  const result = await PostServices.commentInToDB(postID, req.body);
+  const { email } = req.user;
+  console.log(email, postID, req.body);
+  const result = await PostServices.commentInToDB(postID, email, req.body);
   sendResponce(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: " Thanks for your comment",
+    data: result,
+  });
+});
+const UpdateCommentPost = catchAsync(async (req, res) => {
+  const { postID } = req.params;
+  const { email } = req.user;
+  const { commentID, commmnetText } = req.body;
+  // console.log("hiting the commment for update", req.body);
+  const result = await PostServices.updateCommentInToDb(
+    postID,
+    email,
+    req.body
+  );
+  sendResponce(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "comment updated",
     data: result,
   });
 });
@@ -81,4 +99,5 @@ export const PostControllers = {
   UpvotePost,
   getMyPost,
   commentPost,
+  UpdateCommentPost,
 };

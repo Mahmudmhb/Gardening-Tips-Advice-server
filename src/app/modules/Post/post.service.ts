@@ -14,6 +14,7 @@ const newPost = async (payload: TPost) => {
 const getAllPostFromDB = async () => {
   const result = await PostModel.find()
     .populate("user")
+    .populate("comments.user")
     .sort({ createdAt: -1, updatedAt: -1 });
   return result;
 };
@@ -24,11 +25,14 @@ const getMyPostFromDB = async (email: string) => {
     user: findUser,
   })
     .populate("user")
+    .populate("comments.user")
     .sort({ createdAt: -1, updatedAt: -1 });
   return result;
 };
 const getSinglePostFromDB = async (id: string) => {
-  const result = await PostModel.findById(id);
+  const result = await PostModel.findById(id)
+    .populate("user")
+    .populate("comments.user");
   return result;
 };
 const updateSinglePostIntoDB = async (id: string, payload: TPost) => {
@@ -36,20 +40,21 @@ const updateSinglePostIntoDB = async (id: string, payload: TPost) => {
     new: true,
 
     runValidators: true,
-  });
+  }).populate("user");
   return result;
 };
 
 const commentInToDB = async (
   id: string,
+  email: string,
   payload: Record<string, undefined>
 ) => {
-  const { userId, commentText } = payload;
+  const { commentText } = payload;
   const filterPost = await PostModel.findById(id);
   if (!filterPost) {
     throw new Error("Post not found");
   }
-  const filterUser = await User.findOne({ _id: userId });
+  const filterUser = await User.findOne({ email });
   if (!filterUser) {
     throw new Error("user not found!");
   }
@@ -58,9 +63,48 @@ const commentInToDB = async (
     {
       $push: {
         comments: {
-          user: userId,
+          user: filterUser._id,
           comment: commentText,
         },
+      },
+    },
+    { new: true }
+  )
+    .populate("user")
+    .populate("comments.user");
+  return result;
+};
+const updateCommentInToDb = async (
+  id: string,
+  email: string,
+
+  payload: Record<string, undefined>
+) => {
+  const { commentText, commentId } = payload;
+  const filterPost = await PostModel.findById(id);
+  if (!filterPost) {
+    throw new Error("Post not found");
+  }
+  const filterCommnetWIthPostID = filterPost?.comments;
+
+  const commentExists = filterCommnetWIthPostID!.find(
+    (comment) => comment._id.toString() === commentId
+  );
+  if (!commentExists) {
+    throw new Error("Comment not found");
+  }
+  const filterUser = await User.findOne({ email });
+  if (!filterUser) {
+    throw new Error("user not found!");
+  }
+  if (!commentExists.user === filterUser._id) {
+    throw new Error(" you cannt edit this commnet ");
+  }
+  const result = await PostModel.findOneAndUpdate(
+    { _id: id, "comments._id": commentId },
+    {
+      $set: {
+        "comments.$.comment": commentText,
       },
     },
     { new: true }
@@ -68,6 +112,7 @@ const commentInToDB = async (
   console.log(result);
   return result;
 };
+
 const upvotePost = async (payload: Record<string, undefined>) => {
   const { postId, userId } = payload;
   const post = await PostModel.findById(postId);
@@ -106,4 +151,5 @@ export const PostServices = {
   upvotePost,
   getMyPostFromDB,
   commentInToDB,
+  updateCommentInToDb,
 };

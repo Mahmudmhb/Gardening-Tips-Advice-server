@@ -4,6 +4,7 @@ export type TUpvotes = {
   user: Types.ObjectId;
 };
 export type TCommnets = {
+  _id?: any;
   user: Types.ObjectId;
   comment: string;
 };

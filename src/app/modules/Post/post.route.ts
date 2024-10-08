@@ -10,5 +10,14 @@ router.get("/mypost", auth(user_role.user), PostControllers.getMyPost);
 router.get("/:postId", PostControllers.getSinglePost);
 router.patch("/update/:postId", PostControllers.updateSinglePost);
 router.patch("/upvote", PostControllers.UpvotePost);
-router.patch("/commnets/:postID", PostControllers.commentPost);
+router.post(
+  "/comments/:postID",
+  auth(user_role.user),
+  PostControllers.commentPost
+);
+router.patch(
+  "/update-commnets/:postID",
+  auth(user_role.user),
+  PostControllers.UpdateCommentPost
+);
 export const PostRoute = router;
