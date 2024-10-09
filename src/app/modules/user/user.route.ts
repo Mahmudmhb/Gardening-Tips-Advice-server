@@ -14,7 +14,7 @@ router.patch(
 );
 router.post("/follow", UserController.followers);
 
-// Route to unfollow a user
 router.post("/unfollow", UserController.handleUnfollowUser);
+router.post("/payment", auth(user_role.user), UserController.paymentUser);
 
 export const userRoute = router;

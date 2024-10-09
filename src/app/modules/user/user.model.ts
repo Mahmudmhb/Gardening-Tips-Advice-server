@@ -21,6 +21,7 @@ const UserSchema = new Schema<IUser>(
       enum: Object.keys(user_role),
       default: "user",
     },
+    transactionId: { type: String },
   },
   {
     timestamps: true,

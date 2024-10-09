@@ -15,7 +15,7 @@ const getAllPostFromDB = async () => {
   const result = await PostModel.find()
     .populate("user")
     .populate("comments.user")
-    .sort({ createdAt: -1, updatedAt: -1 });
+    .sort({ createdAt: -1, updatedAt: -1, upvotesCount: -1 });
   return result;
 };
 const getMyPostFromDB = async (email: string) => {
@@ -124,7 +124,6 @@ const updateCommentInToDb = async (
   const commentExists = filterCommnetWIthPostID!.find(
     (comment) => comment._id.toString() === commentId
   );
-  console.log("find comment", commentExists?.user);
   if (!commentExists) {
     throw new Error("Comment not found");
   }
@@ -132,9 +131,8 @@ const updateCommentInToDb = async (
   if (!filterUser) {
     throw new Error("user not found!");
   }
-  console.log("find user", filterUser._id);
   if (!commentExists.user.equals(filterUser._id as string)) {
-    throw new Error("You cannot edit this comment");
+    throw new Error("is not your comment");
   }
   const result = await PostModel.findOneAndUpdate(
     { _id: id, "comments._id": commentId },
@@ -148,54 +146,40 @@ const updateCommentInToDb = async (
   return result;
 };
 
-const upvotePost = async (email: string, payload: { postId: string }) => {
-  const { postId } = payload;
-
-  // Find the post by ID
+const upvotePost = async (email: string, postId: string) => {
   const post = await PostModel.findById(postId);
-
   if (!post) {
     throw new Error("Post not found");
   }
-
-  // Find the user by email
+  console.log("user id", post.user);
+  const postUser = post.user;
   const filterUser = await User.findOne({ email });
   if (!filterUser) {
     throw new Error("User not found");
   }
-
   const user = filterUser._id as Types.ObjectId;
-
-  // Prevent user from upvoting their own post
   if (post.user.equals(user)) {
     throw new Error("You cannot upvote your own post");
   }
+  const hasUpvoted = post.upvotedUsers!.includes(user);
 
-  // Prevent user from upvoting the same post multiple times
-  if (post.upvotedUsers!.includes(user)) {
-    throw new Error("User has already upvoted this post");
-  }
-
-  // Increment the upvotes count
-  post.upvotesCount = (post.upvotesCount || 0) + 1;
-
-  // Add the user to the list of upvoted users
-  post.upvotedUsers!.push(user);
-
-  // If upvotesCount is greater than 1, update user to premium
-  if (post.upvotesCount > 1) {
-    const result = await User.updateOne(
-      { _id: user }, // Corrected from `userId`
-      {
-        premium: true,
-      }
+  if (hasUpvoted) {
+    post.upvotedUsers = post.upvotedUsers!.filter(
+      (userId) => !userId.equals(user)
     );
-    console.log("User premium status updated", result);
+    post.upvotesCount = (post.upvotesCount || 1) - 1;
+  } else {
+    post.upvotedUsers!.push(user);
+    post.upvotesCount = (post.upvotesCount || 0) + 1;
+
+    if (post.upvotesCount >= 1) {
+      await User.updateOne({ _id: postUser }, { premium: true });
+    }
   }
 
   // Save the updated post
   const updatedPost = await post.save();
-  await updatedPost.populate("user"); // Populate the user field
+  await updatedPost.populate("user");
 
   return updatedPost;
 };

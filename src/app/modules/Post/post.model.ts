@@ -3,7 +3,7 @@ import { TPost } from "./post.interfase";
 
 const CommentSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  comment: { type: String, required: true },
+  comment: { type: String },
 });
 
 const PostSchema = new Schema<TPost>(
@@ -18,7 +18,7 @@ const PostSchema = new Schema<TPost>(
     comments: [CommentSchema],
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 

@@ -77,12 +77,12 @@ const deleteSinglePost = catchAsync(async (req, res) => {
 });
 const UpvotePost = catchAsync(async (req, res) => {
   const { email } = req.user;
-  console.log(req.body);
-  const result = await PostServices.upvotePost(email, req.body);
+  const { postId } = req.params;
+  const result = await PostServices.upvotePost(email, postId);
   sendResponce(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: " youre Upvote Post successfully",
+    message: " your Upvote Post successfully",
     data: result,
   });
 });

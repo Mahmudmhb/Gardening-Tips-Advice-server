@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { IUser } from "./user.interfase";
 import { User } from "./user.model";
+import { initialPayment } from "../Payment/payment.utlis";
 
 const createUserIntoDB = async (payload: IUser) => {
   const result = await User.create(payload);
@@ -84,6 +85,37 @@ const unfollowUser = async (payload: IUser) => {
 
   return { user, targetUser };
 };
+const viarifyPayment = async (email: string, payload: any) => {
+  const getPayment = payload;
+  const filterUser = await User.findOne({ email });
+  console.log(getPayment, "payment");
+  const totalCost = getPayment.amaount;
+
+  const transactionId = `TXN-${Date.now()}`;
+
+  const order = await User.updateOne(
+    { _id: filterUser!._id },
+    {
+      paymentStatus: "Pending",
+
+      verified: true,
+
+      transactionId,
+    },
+    { new: true }
+  );
+  console.log("order", order);
+  const paymentData = {
+    transactionId,
+    totalCost,
+    customerName: filterUser?.username,
+    custormarEmail: filterUser?.email,
+    custormarPhone: filterUser?.phone,
+  };
+  const initialState = await initialPayment(paymentData);
+  console.log("service pages", initialState);
+  return initialState;
+};
 export const UserService = {
   createUserIntoDB,
   getSingleUserFromDB,
@@ -91,4 +123,5 @@ export const UserService = {
   getAllUserFromDB,
   unfollowUser,
   handleFollowes,
+  viarifyPayment,
 };

@@ -13,7 +13,11 @@ router.patch(
   auth(user_role.user),
   PostControllers.updateSinglePost
 );
-router.patch("/upvote", auth(user_role.user), PostControllers.UpvotePost);
+router.patch(
+  "/upvote/:postId",
+  auth(user_role.user),
+  PostControllers.UpvotePost
+);
 router.post(
   "/comments/:postID",
   auth(user_role.user),

@@ -62,7 +62,17 @@ const handleUnfollowUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
+const paymentUser = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  const userData = req.body;
+  const result = await UserService.viarifyPayment(email, userData);
+  sendResponce(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: " varify successfully",
+    data: result,
+  });
+});
 export const UserController = {
   createUser,
   getAllUser,
@@ -70,4 +80,5 @@ export const UserController = {
   updateSingleUser,
   handleUnfollowUser,
   followers,
+  paymentUser,
 };
