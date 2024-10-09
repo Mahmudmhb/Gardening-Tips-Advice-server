@@ -41,9 +41,14 @@ const getSinglePost = catchAsync(async (req, res) => {
   });
 });
 const updateSinglePost = catchAsync(async (req, res) => {
+  const { email } = req.user;
   const { postId } = req.params;
   if (postId) {
-    const result = await PostServices.updateSinglePostIntoDB(postId, req.body);
+    const result = await PostServices.updateSinglePostIntoDB(
+      postId,
+      email,
+      req.body
+    );
     sendResponce(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -52,8 +57,28 @@ const updateSinglePost = catchAsync(async (req, res) => {
     });
   }
 });
+const deleteSinglePost = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  const { postId } = req.params;
+  console.log("delete post", email, postId);
+  if (postId) {
+    const result = await PostServices.DeleteSinglePostIntoDB(
+      postId,
+      email,
+      req.body
+    );
+    sendResponce(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: " deleted successfully",
+      data: result,
+    });
+  }
+});
 const UpvotePost = catchAsync(async (req, res) => {
-  const result = await PostServices.upvotePost(req.body);
+  const { email } = req.user;
+  console.log(req.body);
+  const result = await PostServices.upvotePost(email, req.body);
   sendResponce(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -76,8 +101,7 @@ const commentPost = catchAsync(async (req, res) => {
 const UpdateCommentPost = catchAsync(async (req, res) => {
   const { postID } = req.params;
   const { email } = req.user;
-  const { commentID, commmnetText } = req.body;
-  // console.log("hiting the commment for update", req.body);
+
   const result = await PostServices.updateCommentInToDb(
     postID,
     email,
@@ -100,4 +124,5 @@ export const PostControllers = {
   getMyPost,
   commentPost,
   UpdateCommentPost,
+  deleteSinglePost,
 };

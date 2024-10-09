@@ -8,8 +8,12 @@ router.post("/create", PostControllers.newPostIntoDB);
 router.get("/", PostControllers.getAllPost);
 router.get("/mypost", auth(user_role.user), PostControllers.getMyPost);
 router.get("/:postId", PostControllers.getSinglePost);
-router.patch("/update/:postId", PostControllers.updateSinglePost);
-router.patch("/upvote", PostControllers.UpvotePost);
+router.patch(
+  "/update/:postId",
+  auth(user_role.user),
+  PostControllers.updateSinglePost
+);
+router.patch("/upvote", auth(user_role.user), PostControllers.UpvotePost);
 router.post(
   "/comments/:postID",
   auth(user_role.user),
@@ -19,5 +23,10 @@ router.patch(
   "/update-commnets/:postID",
   auth(user_role.user),
   PostControllers.UpdateCommentPost
+);
+router.delete(
+  "/delete/:postId",
+  auth(user_role.user),
+  PostControllers.deleteSinglePost
 );
 export const PostRoute = router;
