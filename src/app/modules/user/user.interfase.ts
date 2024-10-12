@@ -13,6 +13,7 @@ export interface IUser {
   phone: string;
   address?: string;
   role?: Tuser_role;
+  transactionId?: string;
 }
 export interface TUserDocument extends IUser, Document {
   role: any;

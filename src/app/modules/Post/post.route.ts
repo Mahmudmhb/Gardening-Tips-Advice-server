@@ -8,6 +8,7 @@ router.post("/create", PostControllers.newPostIntoDB);
 router.get("/", PostControllers.getAllPost);
 router.get("/mypost", auth(user_role.user), PostControllers.getMyPost);
 router.get("/:postId", PostControllers.getSinglePost);
+router.get("/category/:category", PostControllers.getCategoryPost);
 router.patch(
   "/update/:postId",
   auth(user_role.user),

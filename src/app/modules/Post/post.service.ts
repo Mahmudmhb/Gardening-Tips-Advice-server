@@ -35,6 +35,12 @@ const getSinglePostFromDB = async (id: string) => {
     .populate("comments.user");
   return result;
 };
+const getCategoryPostFromDB = async (id: unknown) => {
+  const result = await PostModel.find({ category: id })
+    .populate("user")
+    .populate("comments.user");
+  return result;
+};
 const updateSinglePostIntoDB = async (
   id: string,
   email: string,
@@ -194,4 +200,5 @@ export const PostServices = {
   commentInToDB,
   updateCommentInToDb,
   DeleteSinglePostIntoDB,
+  getCategoryPostFromDB,
 };

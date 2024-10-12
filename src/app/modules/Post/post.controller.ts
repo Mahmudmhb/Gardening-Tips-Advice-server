@@ -40,6 +40,18 @@ const getSinglePost = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getCategoryPost = catchAsync(async (req, res) => {
+  const { category } = req.params; // Get the category from path parameters
+  console.log("hit category", category);
+  const result = await PostServices.getCategoryPostFromDB(category);
+  sendResponce(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `${category} retrieved successfully`,
+    data: result,
+  });
+});
+
 const updateSinglePost = catchAsync(async (req, res) => {
   const { email } = req.user;
   const { postId } = req.params;
@@ -125,4 +137,5 @@ export const PostControllers = {
   commentPost,
   UpdateCommentPost,
   deleteSinglePost,
+  getCategoryPost,
 };
