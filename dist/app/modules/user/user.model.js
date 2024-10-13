@@ -57,6 +57,8 @@ const UserSchema = new mongoose_1.Schema({
         default: "user",
     },
     transactionId: { type: String },
+    payment: { type: Number },
+    favorite: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "post" }],
 }, {
     timestamps: true,
 });

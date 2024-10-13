@@ -125,6 +125,19 @@ const UpdateCommentPost = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const CreateFavoritePost = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.user;
+    const { postId } = req.params;
+    if (postId) {
+        const result = yield post_service_1.PostServices.CreateFavoritePostInToDB(postId, email);
+        (0, sendResponce_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: " your Favorite post updated successfully",
+            data: result,
+        });
+    }
+}));
 exports.PostControllers = {
     newPostIntoDB,
     updateSinglePost,
@@ -136,4 +149,5 @@ exports.PostControllers = {
     UpdateCommentPost,
     deleteSinglePost,
     getCategoryPost,
+    CreateFavoritePost,
 };

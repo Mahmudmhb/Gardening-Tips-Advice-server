@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostServices = void 0;
+exports.PostServices = exports.CreateFavoritePostInToDB = void 0;
 const post_model_1 = require("./post.model");
 const user_model_1 = require("../user/user.model");
 const newPost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -153,11 +153,30 @@ const upvotePost = (email, postId) => __awaiter(void 0, void 0, void 0, function
             yield user_model_1.User.updateOne({ _id: postUser }, { premium: true });
         }
     }
-    // Save the updated post
     const updatedPost = yield post.save();
     yield updatedPost.populate("user");
     return updatedPost;
 });
+const CreateFavoritePostInToDB = (postId, email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findOne({ email });
+    if (!user) {
+        throw new Error("User not found!");
+    }
+    // Check if the post exists
+    const postExists = yield post_model_1.PostModel.findById(postId);
+    if (!postExists) {
+        throw new Error("Post not found!");
+    }
+    // Add the postId to the user's favorites if it's not already added
+    const updatedUser = yield user_model_1.User.findByIdAndUpdate(user._id, {
+        $addToSet: { favorite: postId }, // $addToSet ensures no duplicates
+    }, {
+        new: true,
+        runValidators: true,
+    }).populate("favorite"); // Populate the favorite field with the post details
+    return updatedUser;
+});
+exports.CreateFavoritePostInToDB = CreateFavoritePostInToDB;
 exports.PostServices = {
     newPost,
     getAllPostFromDB,
@@ -169,4 +188,5 @@ exports.PostServices = {
     updateCommentInToDb,
     DeleteSinglePostIntoDB,
     getCategoryPostFromDB,
+    CreateFavoritePostInToDB: exports.CreateFavoritePostInToDB,
 };

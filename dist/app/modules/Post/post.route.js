@@ -18,5 +18,6 @@ router.patch("/update/:postId", (0, auth_1.default)(user_constant_1.user_role.us
 router.patch("/upvote/:postId", (0, auth_1.default)(user_constant_1.user_role.user), post_controller_1.PostControllers.UpvotePost);
 router.post("/comments/:postID", (0, auth_1.default)(user_constant_1.user_role.user), post_controller_1.PostControllers.commentPost);
 router.patch("/update-commnets/:postID", (0, auth_1.default)(user_constant_1.user_role.user), post_controller_1.PostControllers.UpdateCommentPost);
-router.delete("/delete/:postId", (0, auth_1.default)(user_constant_1.user_role.user), post_controller_1.PostControllers.deleteSinglePost);
+router.delete("/delete/:postId", (0, auth_1.default)(user_constant_1.user_role.user || user_constant_1.user_role.admin), post_controller_1.PostControllers.deleteSinglePost);
+router.patch("/favorite/:postId", (0, auth_1.default)(user_constant_1.user_role.user), post_controller_1.PostControllers.CreateFavoritePost);
 exports.PostRoute = router;
