@@ -1,6 +1,9 @@
 import mongoose, { Document, Model } from "mongoose";
 import { user_role } from "./user.constant";
 export type Tuser_role = keyof typeof user_role;
+export type TFavoritePost = {
+  post: mongoose.Types.ObjectId;
+};
 export interface IUser {
   username: string;
   email: string;
@@ -14,6 +17,8 @@ export interface IUser {
   address?: string;
   role?: Tuser_role;
   transactionId?: string;
+  payment?: string;
+  favorite?: TFavoritePost[];
 }
 export interface TUserDocument extends IUser, Document {
   role: any;

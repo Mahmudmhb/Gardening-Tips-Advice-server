@@ -11,44 +11,151 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostServices = void 0;
 const post_model_1 = require("./post.model");
+const user_model_1 = require("../user/user.model");
 const newPost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (yield post_model_1.PostModel.create(payload)).populate("user");
     return result;
 });
 const getAllPostFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield post_model_1.PostModel.find();
+    const result = yield post_model_1.PostModel.find()
+        .populate("user")
+        .populate("comments.user")
+        .sort({ createdAt: -1, updatedAt: -1, upvotesCount: -1 });
+    return result;
+});
+const getMyPostFromDB = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const filterUser = yield user_model_1.User.findOne({ email });
+    const findUser = filterUser === null || filterUser === void 0 ? void 0 : filterUser._id;
+    const result = yield post_model_1.PostModel.find({
+        user: findUser,
+    })
+        .populate("user")
+        .populate("comments.user")
+        .sort({ createdAt: -1, updatedAt: -1 });
     return result;
 });
 const getSinglePostFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield post_model_1.PostModel.findById(id);
+    const result = yield post_model_1.PostModel.findById(id)
+        .populate("user")
+        .populate("comments.user");
     return result;
 });
-const updateSinglePostIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const getCategoryPostFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield post_model_1.PostModel.find({ category: id })
+        .populate("user")
+        .populate("comments.user");
+    return result;
+});
+const updateSinglePostIntoDB = (id, email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("payload", payload);
+    const filterPost = yield post_model_1.PostModel.findById(id);
+    const filterUser = yield user_model_1.User.findOne({ email });
+    if (!filterUser) {
+        throw new Error("user not found!");
+    }
+    if (filterPost && filterUser) {
+        if (filterPost.user.toString() !== filterUser._id.toString()) {
+            throw new Error("This post is not yours!");
+        }
+    }
     const result = yield post_model_1.PostModel.findByIdAndUpdate(id, payload, {
         new: true,
         runValidators: true,
-    });
+    }).populate("user");
     return result;
 });
-const upvotePost = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { postId, userId } = payload;
+const DeleteSinglePostIntoDB = (id, email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("payload", payload);
+    const filterPost = yield post_model_1.PostModel.findById(id);
+    const filterUser = yield user_model_1.User.findOne({ email });
+    if (!filterUser) {
+        throw new Error("user not found!");
+    }
+    if (filterPost && filterUser) {
+        if (filterPost.user.toString() !== filterUser._id.toString()) {
+            throw new Error("This post is not yours!");
+        }
+    }
+    const result = yield post_model_1.PostModel.findByIdAndDelete(id);
+    return result;
+});
+const commentInToDB = (id, email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { commentText } = payload;
+    const filterPost = yield post_model_1.PostModel.findById(id);
+    if (!filterPost) {
+        throw new Error("Post not found");
+    }
+    const filterUser = yield user_model_1.User.findOne({ email });
+    if (!filterUser) {
+        throw new Error("user not found!");
+    }
+    const result = yield post_model_1.PostModel.findByIdAndUpdate(id, {
+        $push: {
+            comments: {
+                user: filterUser._id,
+                comment: commentText,
+            },
+        },
+    }, { new: true })
+        .populate("user")
+        .populate("comments.user");
+    return result;
+});
+const updateCommentInToDb = (id, email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { commentText, commentId } = payload;
+    const filterPost = yield post_model_1.PostModel.findById(id);
+    if (!filterPost) {
+        throw new Error("Post not found");
+    }
+    const filterCommnetWIthPostID = filterPost === null || filterPost === void 0 ? void 0 : filterPost.comments;
+    const commentExists = filterCommnetWIthPostID.find((comment) => comment._id.toString() === commentId);
+    if (!commentExists) {
+        throw new Error("Comment not found");
+    }
+    const filterUser = yield user_model_1.User.findOne({ email });
+    if (!filterUser) {
+        throw new Error("user not found!");
+    }
+    if (!commentExists.user.equals(filterUser._id)) {
+        throw new Error("is not your comment");
+    }
+    const result = yield post_model_1.PostModel.findOneAndUpdate({ _id: id, "comments._id": commentId }, {
+        $set: {
+            "comments.$.comment": commentText,
+        },
+    }, { new: true });
+    return result;
+});
+const upvotePost = (email, postId) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield post_model_1.PostModel.findById(postId);
     if (!post) {
         throw new Error("Post not found");
     }
-    // Check if the user trying to upvote is the author of the post
-    if (post.user.equals(userId)) {
+    console.log("user id", post.user);
+    const postUser = post.user;
+    const filterUser = yield user_model_1.User.findOne({ email });
+    if (!filterUser) {
+        throw new Error("User not found");
+    }
+    const user = filterUser._id;
+    if (post.user.equals(user)) {
         throw new Error("You cannot upvote your own post");
     }
-    // Check if the user has already upvoted the post
-    if (post.upvotedUsers.includes(userId)) {
-        throw new Error("User has already upvoted this post");
+    const hasUpvoted = post.upvotedUsers.includes(user);
+    if (hasUpvoted) {
+        post.upvotedUsers = post.upvotedUsers.filter((userId) => !userId.equals(user));
+        post.upvotesCount = (post.upvotesCount || 1) - 1;
     }
-    // Update the upvote count and add the user to the upvotedUsers list
-    post.upvotesCount += 1;
-    post.upvotedUsers.push(userId);
+    else {
+        post.upvotedUsers.push(user);
+        post.upvotesCount = (post.upvotesCount || 0) + 1;
+        if (post.upvotesCount >= 1) {
+            yield user_model_1.User.updateOne({ _id: postUser }, { premium: true });
+        }
+    }
     // Save the updated post
     const updatedPost = yield post.save();
+    yield updatedPost.populate("user");
     return updatedPost;
 });
 exports.PostServices = {
@@ -57,4 +164,9 @@ exports.PostServices = {
     getSinglePostFromDB,
     updateSinglePostIntoDB,
     upvotePost,
+    getMyPostFromDB,
+    commentInToDB,
+    updateCommentInToDb,
+    DeleteSinglePostIntoDB,
+    getCategoryPostFromDB,
 };

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const user_model_1 = require("./user.model");
+const payment_utlis_1 = require("../Payment/payment.utlis");
 const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.User.create(payload);
     return result;
@@ -81,6 +82,29 @@ const unfollowUser = (payload) => __awaiter(void 0, void 0, void 0, function* ()
     yield targetUser.save();
     return { user, targetUser };
 });
+const viarifyPayment = (email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const getPayment = payload;
+    const filterUser = yield user_model_1.User.findOne({ email });
+    console.log(getPayment, "payment");
+    const totalCost = getPayment.amaount;
+    const transactionId = `TXN-${Date.now()}`;
+    const order = yield user_model_1.User.updateOne({ _id: filterUser._id }, {
+        paymentStatus: "Pending",
+        verified: true,
+        transactionId,
+    }, { new: true });
+    console.log("order", order);
+    const paymentData = {
+        transactionId,
+        totalCost,
+        customerName: filterUser === null || filterUser === void 0 ? void 0 : filterUser.username,
+        custormarEmail: filterUser === null || filterUser === void 0 ? void 0 : filterUser.email,
+        custormarPhone: filterUser === null || filterUser === void 0 ? void 0 : filterUser.phone,
+    };
+    const initialState = yield (0, payment_utlis_1.initialPayment)(paymentData);
+    console.log("service pages", initialState);
+    return initialState;
+});
 exports.UserService = {
     createUserIntoDB,
     getSingleUserFromDB,
@@ -88,4 +112,5 @@ exports.UserService = {
     getAllUserFromDB,
     unfollowUser,
     handleFollowes,
+    viarifyPayment,
 };

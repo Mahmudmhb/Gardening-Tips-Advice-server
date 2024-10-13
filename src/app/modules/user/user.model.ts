@@ -22,6 +22,8 @@ const UserSchema = new Schema<IUser>(
       default: "user",
     },
     transactionId: { type: String },
+    payment: { type: Number },
+    favorite: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
   },
   {
     timestamps: true,

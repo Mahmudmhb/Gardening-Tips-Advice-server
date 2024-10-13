@@ -31,7 +31,12 @@ router.patch(
 );
 router.delete(
   "/delete/:postId",
-  auth(user_role.user),
+  auth(user_role.user || user_role.admin),
   PostControllers.deleteSinglePost
+);
+router.patch(
+  "/favorite/:postId",
+  auth(user_role.user),
+  PostControllers.CreateFavoritePost
 );
 export const PostRoute = router;

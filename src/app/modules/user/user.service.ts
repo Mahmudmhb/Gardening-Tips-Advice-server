@@ -22,7 +22,7 @@ const updateSingleUserIntoDB = async (id: string, payload: IUser) => {
   });
   return result;
 };
-const handleFollowes = async (payload: IUser) => {
+const handleFollowes = async (payload: any) => {
   const { userId, targetUserId } = payload;
 
   // Ensure userId and targetUserId are ObjectId instances
@@ -57,7 +57,7 @@ const handleFollowes = async (payload: IUser) => {
 
   return { user, targetUser };
 };
-const unfollowUser = async (payload: IUser) => {
+const unfollowUser = async (payload: any) => {
   const { userId, targetUserId } = payload;
   if (userId.equals(targetUserId)) {
     throw new Error("You cannot unfollow yourself");

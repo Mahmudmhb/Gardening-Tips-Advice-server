@@ -48,6 +48,7 @@ const UserSchema = new mongoose_1.Schema({
     followers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" }],
     verified: { type: Boolean, default: false },
+    premium: { type: Boolean, default: false },
     phone: { type: String, required: true },
     address: { type: String },
     role: {
@@ -55,6 +56,7 @@ const UserSchema = new mongoose_1.Schema({
         enum: Object.keys(user_constant_1.user_role),
         default: "user",
     },
+    transactionId: { type: String },
 }, {
     timestamps: true,
 });

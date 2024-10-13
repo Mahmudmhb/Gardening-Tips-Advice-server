@@ -183,11 +183,39 @@ const upvotePost = async (email: string, postId: string) => {
     }
   }
 
-  // Save the updated post
   const updatedPost = await post.save();
   await updatedPost.populate("user");
 
   return updatedPost;
+};
+export const CreateFavoritePostInToDB = async (
+  postId: string,
+  email: string
+) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User not found!");
+  }
+
+  // Check if the post exists
+  const postExists = await PostModel.findById(postId);
+  if (!postExists) {
+    throw new Error("Post not found!");
+  }
+
+  // Add the postId to the user's favorites if it's not already added
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    {
+      $addToSet: { favorite: postId }, // $addToSet ensures no duplicates
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).populate("favorite"); // Populate the favorite field with the post details
+
+  return updatedUser;
 };
 
 export const PostServices = {
@@ -201,4 +229,5 @@ export const PostServices = {
   updateCommentInToDb,
   DeleteSinglePostIntoDB,
   getCategoryPostFromDB,
+  CreateFavoritePostInToDB,
 };

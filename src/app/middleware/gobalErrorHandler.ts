@@ -20,25 +20,25 @@ const gobalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   ];
 
   if (err instanceof ZodError) {
-    const simplefeidError = handleZodError(err);
-    message = simplefeidError?.message;
-    statusCode = simplefeidError?.statusCode;
-    errorSource = simplefeidError?.errorSources;
+    const simplifiedError = handleZodError(err);
+    message = simplifiedError?.message;
+    statusCode = simplifiedError?.statusCode;
+    errorSource = simplifiedError?.errorSources;
   } else if (err?.name === "ValidationError") {
-    const simplefeidError = handleValidationError(err);
-    statusCode = simplefeidError.statusCode;
-    message = simplefeidError?.message;
-    errorSource = simplefeidError.errorSources;
+    const simplifiedError = handleValidationError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError?.message;
+    errorSource = simplifiedError.errorSources;
   } else if (err.name === "CastError") {
-    const simplefeidError = handleCastError(err);
-    statusCode = simplefeidError.statusCode;
-    message = simplefeidError?.message;
-    errorSource = simplefeidError.errorSources;
+    const simplifiedError = handleCastError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError?.message;
+    errorSource = simplifiedError.errorSources;
   } else if (err.code === 11000) {
-    const simplefeidError = handleDuplicateError(err);
-    statusCode = simplefeidError.statusCode;
-    message = simplefeidError?.message;
-    errorSource = simplefeidError.errorSources;
+    const simplifiedError = handleDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError?.message;
+    errorSource = simplifiedError.errorSources;
   } else if (err instanceof AppError) {
     statusCode = err?.statusCode;
     message = err?.message;
@@ -47,13 +47,16 @@ const gobalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     message = err?.message;
     errorSource = [{ path: "", message: err?.message }];
   }
-  return res.status(statusCode).json({
+
+  // Send the response
+  res.status(statusCode).json({
     success: false,
     message,
     errorSource,
-    // err,
-
-    // stack: config.NODE_ENV === "development" ? err.stack : null,
   });
+
+  // Return void
+  return; // This is important to avoid TypeScript errors
 };
+
 export default gobalErrorHandler;

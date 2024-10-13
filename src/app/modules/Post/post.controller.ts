@@ -42,7 +42,6 @@ const getSinglePost = catchAsync(async (req, res) => {
 });
 const getCategoryPost = catchAsync(async (req, res) => {
   const { category } = req.params; // Get the category from path parameters
-  console.log("hit category", category);
   const result = await PostServices.getCategoryPostFromDB(category);
   sendResponce(res, {
     statusCode: httpStatus.OK,
@@ -126,7 +125,19 @@ const UpdateCommentPost = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
+const CreateFavoritePost = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  const { postId } = req.params;
+  if (postId) {
+    const result = await PostServices.CreateFavoritePostInToDB(postId, email);
+    sendResponce(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: " your Favorite post updated successfully",
+      data: result,
+    });
+  }
+});
 export const PostControllers = {
   newPostIntoDB,
   updateSinglePost,
@@ -138,4 +149,5 @@ export const PostControllers = {
   UpdateCommentPost,
   deleteSinglePost,
   getCategoryPost,
+  CreateFavoritePost,
 };

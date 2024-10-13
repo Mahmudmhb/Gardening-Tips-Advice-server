@@ -76,6 +76,17 @@ const handleUnfollowUser = (0, catchAsync_1.default)((req, res) => __awaiter(voi
         data: result,
     });
 }));
+const paymentUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.user;
+    const userData = req.body;
+    const result = yield user_service_1.UserService.viarifyPayment(email, userData);
+    (0, sendResponce_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: " varify successfully",
+        data: result,
+    });
+}));
 exports.UserController = {
     createUser,
     getAllUser,
@@ -83,4 +94,5 @@ exports.UserController = {
     updateSingleUser,
     handleUnfollowUser,
     followers,
+    paymentUser,
 };
